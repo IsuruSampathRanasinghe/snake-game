@@ -39,6 +39,9 @@ class Food:
         canvas.create_oval(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=FOOD_COLOR, tag="food")
 
 def next_turn(snake, food):
+
+    if is_paused:
+        return
     
     x, y = snake.coordinates[0]
 
@@ -93,6 +96,13 @@ def change_direction(new_direction):
         if direction != 'up':
             direction = new_direction
 
+def toggle_pause():
+    global is_paused
+    is_paused = not is_paused
+    if not is_paused:
+        next_turn(snake, food)
+    pause_button.config(text="Resume" if is_paused else "Paused")
+
 def check_collisions(snake):
     x,y = snake.coordinates[0]
 
@@ -123,7 +133,7 @@ def game_over():
  
 
 def restart_game():
-    global score, direction, snake, food, restart_button
+    global score, direction, snake, food, restart_button 
 
     score = 0
     direction = 'down'
@@ -148,13 +158,17 @@ window.resizable(False, False)
 
 score = 0
 direction = 'down'
+is_paused = False
 restart_button = None
 
 top_frame = Frame(window)
-top_frame.pack(side=TOP)
+top_frame.pack(pady=10)
 
-label = Label(top_frame, text="Score:{}".format(score), font=('consolas', 40))
+label = Label(top_frame, text="Score:{}".format(score), font=('consolas', 20))
 label.pack(side=LEFT, padx=10)
+
+pause_button = Button(top_frame, text="Pause", font=('consolas', 12), command=lambda: toggle_pause())
+pause_button.pack(side=LEFT, padx=5)
 
 restart_button = None
 
