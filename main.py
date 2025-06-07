@@ -28,8 +28,11 @@ class Food:
     
     def __init__(self):
 
-        x = random.randint(0, (GAME_WIDTH / SPACE_SIZE)-1) * SPACE_SIZE
-        y = random.randint(0, (GAME_HEIGHT / SPACE_SIZE)-1) * SPACE_SIZE
+        while True:
+            x = random.randint(0, (GAME_WIDTH // SPACE_SIZE)-1) * SPACE_SIZE
+            y = random.randint(0, (GAME_HEIGHT // SPACE_SIZE)-1) * SPACE_SIZE
+            if [x, y] not in snake.coordinates:
+                break
 
         self.coordinates = [x, y]
 
@@ -108,20 +111,52 @@ def check_collisions(snake):
 
 
 def game_over():
+    global restart_button
+    canvas.delete("snake")
+    canvas.delete("food")
 
-    canvas.delete(ALL)
-    canvas.create_text(canvas.winfo_width()/2, canvas.winfo_height()/2, font=('consolas', 70), text="GAME OVER", fill="red", tag="gameover")
+    canvas.create_text(canvas.winfo_width()/2, canvas.winfo_height()/2,
+                       font=('consolas', 70), text="GAME OVER", fill="red", tag="gameover")
 
+    restart_button = Button(window, text="Restart", font=("consolas", 20), command=restart_game)
+    canvas.create_window(canvas.winfo_width()/2, canvas.winfo_height()/2 + 100, window=restart_button, tag="restart-button")
+ 
+
+def restart_game():
+    global score, direction, snake, food, restart_button
+
+    score = 0
+    direction = 'down'
+    label.config(text="Score:{}".format(score))
+
+    canvas.delete("all")
+    canvas.delete("restart_button")
+
+    if restart_button:
+        restart_button.destroy()
+        restart_button = None
+
+
+    snake = Snake()
+    food = Food()
+
+    next_turn(snake, food)
 
 window = Tk()
-window.title("Snake game")
+window.title("Snake Game")
 window.resizable(False, False)
 
 score = 0
 direction = 'down'
+restart_button = None
 
-label = Label(window, text="Score:{}".format(score), font=('consolas', 40))
-label.pack()
+top_frame = Frame(window)
+top_frame.pack(side=TOP)
+
+label = Label(top_frame, text="Score:{}".format(score), font=('consolas', 40))
+label.pack(side=LEFT, padx=10)
+
+restart_button = None
 
 canvas = Canvas(window, bg=BACKGROUND_COLOR, height=GAME_HEIGHT, width=GAME_WIDTH)
 canvas.pack()
@@ -133,10 +168,11 @@ window_height = window.winfo_height()
 screen_width = window.winfo_screenwidth()
 screen_height = window.winfo_screenheight()
 
-x = int((screen_width/2) - (window_height/2))
-y = int((screen_height/2) - (window_height/2))
+x = int((screen_width / 2) - (window_width / 2))
+y = int((screen_height / 2) - (window_height / 2))
 
 window.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
 
 window.bind('<Left>', lambda event: change_direction('left'))
 window.bind('<Right>', lambda event: change_direction('right'))
