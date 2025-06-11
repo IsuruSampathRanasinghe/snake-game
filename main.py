@@ -121,31 +121,34 @@ def check_collisions(snake):
 
 
 def game_over():
-    global restart_button
+    global restart_button, restart_button_id
     canvas.delete("snake")
     canvas.delete("food")
 
     canvas.create_text(canvas.winfo_width()/2, canvas.winfo_height()/2,
                        font=('consolas', 70), text="GAME OVER", fill="red", tag="gameover")
 
-    restart_button = Button(window, text="Restart", font=("consolas", 20), command=restart_game)
-    canvas.create_window(canvas.winfo_width()/2, canvas.winfo_height()/2 + 100, window=restart_button, tag="restart-button")
- 
+    if restart_button_id is None:
+        restart_button = Button(window, text="Restart", font=("consolas", 20), command=restart_game)
+        restart_button_id = canvas.create_window(canvas.winfo_width()/2, canvas.winfo_height()/2 + 100, window=restart_button, tag="restart-button")
+
+
 
 def restart_game():
-    global score, direction, snake, food, restart_button 
+    global score, direction, snake, food, restart_button, restart_button_id 
 
     score = 0
     direction = 'down'
     label.config(text="Score:{}".format(score))
 
     canvas.delete("all")
-    canvas.delete("restart_button")
+    canvas.delete("restart-button")
 
     if restart_button:
         restart_button.destroy()
         restart_button = None
 
+    restart_button_id = None
 
     snake = Snake()
     food = Food()
@@ -160,6 +163,7 @@ score = 0
 direction = 'down'
 is_paused = False
 restart_button = None
+restart_button_id = None
 
 top_frame = Frame(window)
 top_frame.pack(pady=10)
@@ -170,7 +174,7 @@ label.pack(side=LEFT, padx=10)
 pause_button = Button(top_frame, text="Pause", font=('consolas', 12), command=lambda: toggle_pause())
 pause_button.pack(side=LEFT, padx=5)
 
-restart_button = None
+
 
 canvas = Canvas(window, bg=BACKGROUND_COLOR, height=GAME_HEIGHT, width=GAME_WIDTH)
 canvas.pack()
